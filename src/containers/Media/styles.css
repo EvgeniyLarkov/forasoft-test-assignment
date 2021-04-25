@@ -1,0 +1,22 @@
+@import "../../assets/variables.css";
+
+.root {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+  padding: var(--spacing-xl);
+  background-color: var(--background);
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: aqua;
+  border-radius: var(--radius-s);
+  min-width: 200px;
+  min-height: 200px;
+  margin: auto;
+}

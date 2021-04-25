@@ -1,0 +1,21 @@
+@import "../../assets/variables.css";
+
+main {
+  height: 100vh;
+}
+
+.welcome {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.label {
+  text-align: center;
+  color: var(--text-primary);
+  padding: var(--spacing-m);
+  margin: 0;
+}

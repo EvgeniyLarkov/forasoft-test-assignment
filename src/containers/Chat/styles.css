@@ -1,0 +1,41 @@
+@import "../../assets/variables.css";
+
+
+.root {
+  height: 100%;
+  position: relative;
+}
+
+.chat {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 80px;
+  overflow-y: auto;
+}
+
+.chatcard {
+  margin-bottom: var(--spacing-m);
+}
+
+.chatcard__message {
+  display: block;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-s);
+  font-size: 1.2rem;
+}
+
+.chatcard__info {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.root form {
+  position: absolute;
+  height: 60px;
+  bottom: 0;
+  left: var(--spacing-m);
+  right: var(--spacing-m);
+}

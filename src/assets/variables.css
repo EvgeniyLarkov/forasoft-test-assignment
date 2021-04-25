@@ -1,0 +1,23 @@
+:root {
+  --typography-font-family: "Roboto, sans-serif";
+
+  --radius-s: 4px;
+  --radius-m: 8px;
+  --radius-l: 16px;
+
+  --spacing-s: 4px;
+  --spacing-m: 8px;
+  --spacing-l: 16px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 64px;
+
+  --primary: #a6accd;
+  --secondary: #444267;
+
+  --surface: #717cb470;
+  --background: #292d3e;
+  --error: #b00020;
+
+  --text-primary: #c7c8cc;
+  --text-secondary: #676e95;
+}

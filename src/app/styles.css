@@ -1,0 +1,5 @@
+@import "../assets/variables.css";
+
+html {
+  background-color: var(--background);
+}
