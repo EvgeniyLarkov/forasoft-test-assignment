@@ -10,11 +10,17 @@
   background-color: var(--background);
 }
 
+.control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .card {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: aqua;
+  background-color: indianred;
   border-radius: var(--radius-s);
   min-width: 200px;
   min-height: 200px;

@@ -7,19 +7,15 @@ import {
   MessageEventRequest,
   MessageEventResponse,
   MessageInterface,
+  UsersClientInterface,
 } from "../../../server/types";
-
-export type useSocketsInterface = [
-  (user: string, id: string) => (msg: string) => void,
-  (user: string, id: string) => void
-]
 
 
 const useSockets = (
-  setUsers: (x: string[]) => void,
+  setUsers: (x: UsersClientInterface[]) => void,
   setMessages: (x: MessageInterface[]) => void,
   setRoomId: (x: string) => void
-): useSocketsInterface => {
+) => {
   const socket = useMemo(() => io("http://localhost:8040/"), []);
 
   useEffect(() => {
@@ -30,16 +26,19 @@ const useSockets = (
       setUsers(payload.users);
       setRoomId(payload.roomId);
       setMessages(payload.messages);
+      console.log()
     });
 
     socket.on(EventTypes.message, (payload: MessageEventResponse) => {
       setMessages(payload);
     });
 
-    socket.on(EventTypes.leave, (payload: string[]) => {
+    socket.on(EventTypes.leave, (payload: UsersClientInterface[]) => {
       setUsers(payload);
     });
   }, []);
+
+  
 
   const sendMessage = (username: string, roomId: string) => (msg: string) => {
     const request: MessageEventRequest = {
@@ -58,7 +57,7 @@ const useSockets = (
     socket.emit(EventTypes.join, request);
   };
 
-  return [sendMessage, joinRoom];
+  return [sendMessage, joinRoom, socket] as const;
 };
 
 export default useSockets;

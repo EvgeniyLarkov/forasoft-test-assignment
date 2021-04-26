@@ -36,6 +36,10 @@ class State {
         return this.users[userId];
     }
 
+    getUserRoom(userId: string) {
+        return this.users[userId].roomId;
+    }
+
     removeRoom(roomId: string) {
         delete this.state[roomId];
     }

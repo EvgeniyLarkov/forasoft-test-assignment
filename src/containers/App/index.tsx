@@ -1,5 +1,6 @@
+import useWebRTC from "../../hooks/useWebRTC";
 import React, { ChangeEvent, FormEvent, useCallback, useEffect, useState } from "react";
-import { MessageInterface } from "../../../server/types";
+import { MessageInterface, UsersClientInterface } from "../../../server/types";
 import Chat from "../Chat";
 import Media from "../Media";
 import styles from "./styles.css";
@@ -47,12 +48,14 @@ const WelcomeContainer = ({
 };
 
 const App: React.FC = () => {
-    const [users, setUsers] = useState<string[]>([]);
+    const [users, setUsers] = useState<UsersClientInterface[]>([]);
     const [name, setName] = useState<string | null>(null);
     const [roomId, setRoomId] = useState<string | null>(null);
     const [messages, setMessages] = useState<MessageInterface[]>([]);
+    const [isCapturing, setCapturing] = useState(false);
 
-    const [sendMessage, joinRoom] = useSockets(setUsers, setMessages, setRoomId);
+    const [sendMessage, joinRoom, socket] = useSockets(setUsers, setMessages, setRoomId);
+    const [provideMediaRef] = useWebRTC(socket.id, socket, isCapturing);
 
     useEffect(() => {
         const path = window.location.pathname.slice(1);
@@ -75,6 +78,7 @@ const App: React.FC = () => {
     }, [roomId])
 
     const handleSendMessage = useCallback(sendMessage(name ?? '', roomId ?? ''), [name, roomId]);
+    const handleStartCapture = useCallback((value: boolean) => setCapturing(value), []);
 
     return (
         <main className="pure-g">
@@ -89,7 +93,12 @@ const App: React.FC = () => {
                     </div>
                     <div className="pure-u-1-2">
                         <h2 className={styles.label}>Users</h2>
-                        <Media users={users} />
+                        <Media 
+                        users={users}
+                        isCapturing={isCapturing}
+                        provideRef={provideMediaRef}
+                        handleVideoStart={handleStartCapture}
+                        />
                     </div>
                     <div className="pure-u-1-2">
                         <h2 className={styles.label}>Chat</h2>

@@ -14,7 +14,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack-dev-server --mode development --hot --progress --color --port 3000 --open",
-    "start-server": "nodemon --config ./server/nodemon.json ./server/index.ts",
+    "start-server": "nodemon",
     "build": "webpack -p --progress --colors",
     "lint": "npx eslint ."
   },
@@ -23,6 +23,7 @@
     "axios": "^0.21.1",
     "fastify": "^3.15.0",
     "fastify-socket.io": "^1.0.2",
+    "freeice": "^2.2.2",
     "nodemon": "^2.0.7",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",

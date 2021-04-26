@@ -39,8 +39,11 @@ const Chat: React.FC<ChatProps> = ({
         <div className={style.root}>
             <div className={style.chat}>
                 {messages.map((msg) =>
-                    <ChatCard date={msg.date}
-                        author={msg.username}>
+                    <ChatCard 
+                    date={msg.date}
+                        author={msg.username}
+                        key={`${msg.message}${msg.date}`}
+                        >
                         {msg.message}
                     </ChatCard>)
                 }
