@@ -1,5 +1,5 @@
 # ForaSoft test assignment
-### demo: https://socketschat.netlify.app/
+### demo: https://mysocketschat.netlify.app/
 ## Stack
 
 - Typescript
