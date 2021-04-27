@@ -25,10 +25,9 @@ const useSockets = (
       setUsers(payload.users);
       setRoomId(payload.roomId);
       setMessages(payload.messages);
-      console.log('Join_USEr');
     });
 
-    socket.on(EventTypes.NEW_USER, (payload: NewUserEventRequest) => {
+    socket.on(EventTypes.new_user, (payload: NewUserEventRequest) => {
       setUsers(prev => [...prev, payload]);
     });
 
@@ -38,7 +37,6 @@ const useSockets = (
 
     socket.on(EventTypes.leave, (payload: UsersClientInterface[]) => {
       setUsers(payload);
-      console.log('User_leave');
     });
   }, []);
 

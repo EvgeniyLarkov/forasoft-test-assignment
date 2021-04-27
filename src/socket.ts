@@ -1,5 +1,8 @@
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:8040/");
+const host = process.env.NODE_ENV === 'development'
+  ? 'http://localhost:8080' : 'https://socketschat.herokuapp.com';
+
+const socket = io(host);
 
 export default socket;

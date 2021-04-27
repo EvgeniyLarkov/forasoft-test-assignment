@@ -8,19 +8,16 @@ import {
   JoinRoomEventResponse,
   MessageEventRequest,
   MessageEventResponse,
-  RelayIceRequest,
-  RelayIceResponse,
 } from "./types";
 
 const core = (app: FastifySocketInstance) => {
   const state = new State();
 
   app.io.on("connection", (socket: Socket) => {
-
     socket.on(EventTypes.join, (message: JoinRoomEventRequest, acknowledge) => {
       const { username, roomId } = message;
       const userData = { username, id: socket.id, roomId };
-      console.log(roomId);
+
       if (roomId === undefined || !state.hasRoom(roomId)) {
         userData.roomId = socket.id;
         state.createRoom(userData.roomId);
@@ -32,7 +29,7 @@ const core = (app: FastifySocketInstance) => {
       }
 
       const { messages, userIds } = state.getRoom(userData.roomId);
-      const newUsers = userIds.map(id => {
+      const newUsers = userIds.map((id) => {
         const data = state.getUser(id);
         return { id: data.id, username: data.username };
       });
@@ -43,12 +40,11 @@ const core = (app: FastifySocketInstance) => {
         roomId: userData.roomId,
       };
 
-      app.io.to(userData.id).emit(EventTypes.join, response);
-      userIds.forEach(user => {
-        if (user !== userData.id) {
-          app.io.to(user).emit(EventTypes.NEW_USER, { id: userData.id, username: userData.username });
-        }
-      })
+      socket.emit(EventTypes.join, response);
+      socket.to(userData.roomId).emit(EventTypes.new_user, {
+        id: userData.id,
+        username: userData.username,
+      });
     });
 
     socket.on(EventTypes.message, (payload: MessageEventRequest) => {
@@ -57,12 +53,12 @@ const core = (app: FastifySocketInstance) => {
       const response: MessageEventResponse = {
         username,
         message,
-        date: new Date().toString()
+        date: new Date().toString(),
       };
 
       state.addMessage(roomId, username, message, response.date);
 
-      app.io.sockets.in(roomId).emit(EventTypes.message, response);
+      app.io.in(roomId).emit(EventTypes.message, response);
     });
 
     socket.on("disconnect", () => {
@@ -77,45 +73,15 @@ const core = (app: FastifySocketInstance) => {
         } else {
           const response: DisconnectResponse = state
             .getRoom(roomId)
-            .userIds.map(id => {
+            .userIds.map((id) => {
               const data = state.getUser(id);
               return { id: data.id, username: data.username };
             });
 
-          app.io.sockets.in(roomId).emit(EventTypes.leave, response);
+          app.io.in(roomId).emit(EventTypes.leave, response);
         }
       }
     });
-
-    socket.on(EventTypes.RELAY_SDP, ({ peerID, sessionDescription }) => {
-      const roomId = state.getUserRoom(socket.id);
-      console.log("NEW_DSC: ", peerID)
-      app.io.sockets.in(roomId).emit(EventTypes.SESSION_DESCRIPTION, {
-        peerID: peerID,
-        sessionDescription,
-      });
-    });
-
-    socket.on(EventTypes.START_TRANSMISSION, () => {
-      console.log('start transmission', socket.id);
-    });
-
-    socket.on(EventTypes.STOP_TRANSMISSION, () => {
-      console.log('stop transmission', socket.id);
-    });
-
-    socket.on(
-      EventTypes.RELAY_ICE,
-      ({ peerId, iceCandidate }: RelayIceRequest) => {
-        console.log("NEW_ICE: ", peerId)
-        const roomId = state.getUserRoom(socket.id);
-        const response: RelayIceResponse = {
-          peerId,
-          iceCandidate,
-        };
-        app.io.sockets.in(roomId).emit(EventTypes.ICE_CANDIDATE, response);
-      }
-    );
   });
 };
 

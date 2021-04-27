@@ -1,10 +1,11 @@
-# Just-AI test assignment
-### demo: https://testassignment.netlify.app/
+# ForaSoft test assignment
+### demo: https://socketschat.netlify.app/
 ## Stack
 
 - Typescript
 - React
-- Redux(RTK)
+- Socket.io
+- fastify
 
 ## Installation
 
@@ -12,14 +13,20 @@
 $ npm ci
 ```
 
-## Running
+## Running-server
 
 ```
-$ npm start / make develop
+$ npm run-script start-server / make start-server
+```
+
+## Running-client
+
+```
+$ npm run-script start / make develop
 ```
 
 ## Build
 
 ```
-$ npm run build
+$ npm run build / make build
 ```

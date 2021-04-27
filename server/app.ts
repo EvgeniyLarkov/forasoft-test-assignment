@@ -7,7 +7,7 @@ const App = async () => {
 
     await app.register(sockets, {
         cors: {
-          origin: "http://localhost:3000",
+          origin: `${process.env.CLIENT_ORIGIN}:${process.env.CLIENT_PORT}`,
           methods: ["GET", "POST"],
         }
       });
