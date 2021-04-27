@@ -16,7 +16,8 @@
     "start": "webpack-dev-server --mode development --hot --progress --color --port 8081 --open",
     "start-server": "nodemon",
     "build": "webpack -p --progress --colors",
-    "lint": "npx eslint ."
+    "lint": "npx eslint .",
+    "heroku-postbuild": "npm run start-server"
   },
   "license": "MIT",
   "dependencies": {
