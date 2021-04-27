@@ -10,13 +10,15 @@
     "sockets",
     "typescript"
   ],
-  "main": "src/index.ts",
+  "main": "server/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "develop": "webpack-dev-server --mode development --hot --progress --color --port 8081 --open",
-    "start": "npx nodemon",
+    "start": "ts-node --project ./server/tsconfig.json ./server/index.ts",
+    "start-dev": "npx nodemon",
     "build": "webpack -p --progress --colors",
-    "lint": "npx eslint ."
+    "lint": "npx eslint .",
+    "heroku-postbuild": "exit 1"
   },
   "license": "MIT",
   "dependencies": {
