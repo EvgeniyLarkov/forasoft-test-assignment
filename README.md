@@ -16,7 +16,7 @@ $ npm ci
 ## Running-server
 
 ```
-$ npm run-script start / make start-server
+$ npm run-script start-dev / make start-server
 ```
 
 ## Running-client

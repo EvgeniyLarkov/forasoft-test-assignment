@@ -4,7 +4,7 @@ develop:
 	npm run-script develop
 
 start-server:
-	npm run-script start
+	npm run-script start-dev
 
 build:
 	npm run-script build
