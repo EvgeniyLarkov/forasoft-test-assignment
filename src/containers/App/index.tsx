@@ -55,9 +55,10 @@ const App: React.FC = () => {
     const [sendMessage, joinRoom] = useSockets(setUsers, setMessages, setRoomId);
 
     useEffect(() => {
-        const path = window.location.pathname.slice(1);
-        if (path.length > 0) {
-            setRoomId(path);
+        const search = document.location.search;
+        const id = new URLSearchParams(search).get('id')
+        if (id !== null) {
+            setRoomId(id);
         }
     }, [])
 
@@ -69,8 +70,9 @@ const App: React.FC = () => {
 
     useEffect(() => {
         if (roomId !== null) {
-            const newURL = new URL(roomId, window.location.origin).toString();
-            window.history.replaceState(null, '', newURL);
+            const newURL = new URL(window.location.origin)
+            newURL.searchParams.append("id", roomId);
+            window.history.replaceState(null, '', newURL.toString());
         }
     }, [roomId])
 
