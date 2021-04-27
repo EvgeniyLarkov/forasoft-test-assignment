@@ -16,13 +16,13 @@ $ npm ci
 ## Running-server
 
 ```
-$ npm run-script start-server / make start-server
+$ npm run-script start / make start-server
 ```
 
 ## Running-client
 
 ```
-$ npm run-script start / make develop
+$ npm run-script develop / make develop
 ```
 
 ## Build

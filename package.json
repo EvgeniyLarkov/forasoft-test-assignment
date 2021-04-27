@@ -13,11 +13,10 @@
   "main": "src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack-dev-server --mode development --hot --progress --color --port 8081 --open",
-    "start-server": "nodemon",
+    "develop": "webpack-dev-server --mode development --hot --progress --color --port 8081 --open",
+    "start": "nodemon",
     "build": "webpack -p --progress --colors",
-    "lint": "npx eslint .",
-    "heroku-postbuild": "npm run start-server"
+    "lint": "npx eslint ."
   },
   "license": "MIT",
   "dependencies": {

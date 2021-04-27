@@ -1,10 +1,10 @@
 install: install-deps
 
 develop:
-	npm run-script start
+	npm run-script develop
 
 start-server:
-	npm run-script start-server
+	npm run-script start
 
 build:
 	npm run-script build
