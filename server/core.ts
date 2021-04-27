@@ -20,7 +20,7 @@ const core = (app: FastifySocketInstance) => {
     socket.on(EventTypes.join, (message: JoinRoomEventRequest, acknowledge) => {
       const { username, roomId } = message;
       const userData = { username, id: socket.id, roomId };
-
+      console.log(roomId);
       if (roomId === undefined || !state.hasRoom(roomId)) {
         userData.roomId = socket.id;
         state.createRoom(userData.roomId);
@@ -31,26 +31,36 @@ const core = (app: FastifySocketInstance) => {
         state.addUser(userData.roomId, userData);
       }
 
-      const { userIds, messages } = state.getRoom(userData.roomId);
+      const { messages, userIds } = state.getRoom(userData.roomId);
+      const newUsers = userIds.map(id => {
+        const data = state.getUser(id);
+        return { id: data.id, username: data.username };
+      });
 
       const response: JoinRoomEventResponse = {
         messages,
-        users: userIds.map((userId) => {
-          const { username, id } = state.getUser(userId);
-          return { username, id };
-        }),
+        users: newUsers,
         roomId: userData.roomId,
       };
 
-      app.io.sockets.in(userData.roomId).emit(EventTypes.join, response);
+      app.io.to(userData.id).emit(EventTypes.join, response);
+      userIds.forEach(user => {
+        if (user !== userData.id) {
+          app.io.to(user).emit(EventTypes.NEW_USER, { id: userData.id, username: userData.username });
+        }
+      })
     });
 
     socket.on(EventTypes.message, (payload: MessageEventRequest) => {
       const { message, username, roomId } = payload;
 
-      state.addMessage(roomId, username, message);
+      const response: MessageEventResponse = {
+        username,
+        message,
+        date: new Date().toString()
+      };
 
-      const response: MessageEventResponse = state.getRoom(roomId).messages;
+      state.addMessage(roomId, username, message, response.date);
 
       app.io.sockets.in(roomId).emit(EventTypes.message, response);
     });
@@ -67,7 +77,10 @@ const core = (app: FastifySocketInstance) => {
         } else {
           const response: DisconnectResponse = state
             .getRoom(roomId)
-            .userIds.map((id) => state.getUser(id).username);
+            .userIds.map(id => {
+              const data = state.getUser(id);
+              return { id: data.id, username: data.username };
+            });
 
           app.io.sockets.in(roomId).emit(EventTypes.leave, response);
         }
@@ -76,8 +89,9 @@ const core = (app: FastifySocketInstance) => {
 
     socket.on(EventTypes.RELAY_SDP, ({ peerID, sessionDescription }) => {
       const roomId = state.getUserRoom(socket.id);
-      app.io.sockets.to(roomId).emit(EventTypes.SESSION_DESCRIPTION, {
-        peerID: socket.id,
+      console.log("NEW_DSC: ", peerID)
+      app.io.sockets.in(roomId).emit(EventTypes.SESSION_DESCRIPTION, {
+        peerID: peerID,
         sessionDescription,
       });
     });
@@ -93,9 +107,10 @@ const core = (app: FastifySocketInstance) => {
     socket.on(
       EventTypes.RELAY_ICE,
       ({ peerId, iceCandidate }: RelayIceRequest) => {
+        console.log("NEW_ICE: ", peerId)
         const roomId = state.getUserRoom(socket.id);
         const response: RelayIceResponse = {
-          peerId: socket.id,
+          peerId,
           iceCandidate,
         };
         app.io.sockets.in(roomId).emit(EventTypes.ICE_CANDIDATE, response);

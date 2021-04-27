@@ -44,8 +44,8 @@ class State {
         delete this.state[roomId];
     }
 
-    addMessage(roomId: string, username: string, message: string) {
-        this.state[roomId].messages.push({ username, message, date: new Date().toString() })
+    addMessage(roomId: string, username: string, message: string, date: string) {
+        this.state[roomId].messages.push({ username, message, date })
     }
 
     addUser(roomId: string, user: UsersInterface) {

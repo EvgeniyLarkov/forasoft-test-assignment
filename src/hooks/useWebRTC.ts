@@ -1,15 +1,15 @@
 import { useEffect, useRef, useCallback } from "react";
 import freeice from "freeice";
 import { Socket } from "socket.io-client";
-import { EventTypes } from "../../server/types";
+import {
+  EventTypes,
+  NewUserEventRequest,
+  RelaySdpRequest,
+} from "../../server/types";
 
 export const LOCAL_VIDEO = "LOCAL_VIDEO";
 
-export default function useWebRTC(
-  roomID: string,
-  socket: Socket,
-  isCapturing: boolean
-) {
+export default function useWebRTC(socket: Socket, isCapturing: boolean) {
   const peerConnections = useRef<{ [x: string]: RTCPeerConnection }>({});
   const localMediaStream = useRef<MediaStream | null>(null);
   const peerMediaElements = useRef<{
@@ -19,13 +19,8 @@ export default function useWebRTC(
   });
 
   useEffect(() => {
-    async function handleNewPeer({
-      peerID,
-      createOffer,
-    }: {
-      peerID: string;
-      createOffer: string;
-    }) {
+    async function handleNewPeer(user: NewUserEventRequest) {
+      const peerID = user.id;
       if (peerID in peerConnections.current) {
         return console.warn(`Already connected to peer ${peerID}`);
       }
@@ -35,6 +30,7 @@ export default function useWebRTC(
       });
 
       peerConnections.current[peerID].onicecandidate = (event) => {
+        console.log("ice", event);
         if (event.candidate) {
           socket.emit(EventTypes.RELAY_ICE, {
             peerID,
@@ -48,19 +44,6 @@ export default function useWebRTC(
       }) => {
         if (peerMediaElements.current[peerID]) {
           peerMediaElements.current[peerID]!.srcObject = remoteStream;
-        } else {
-          // FIX LONG RENDER IN CASE OF MANY CLIENTS
-          let settled = false;
-          const interval = setInterval(() => {
-            if (peerMediaElements.current[peerID]) {
-              peerMediaElements.current[peerID]!.srcObject = remoteStream;
-              settled = true;
-            }
-
-            if (settled) {
-              clearInterval(interval);
-            }
-          }, 1000);
         }
       };
 
@@ -73,9 +56,9 @@ export default function useWebRTC(
         });
       }
 
-      if (createOffer) {
+      if (peerID !== socket.id) {
         const offer = await peerConnections.current[peerID].createOffer();
-
+        console.log("Offer create");
         await peerConnections.current[peerID].setLocalDescription(offer);
 
         socket.emit(EventTypes.RELAY_SDP, {
@@ -85,7 +68,7 @@ export default function useWebRTC(
       }
     }
 
-    socket.on(EventTypes.join, handleNewPeer);
+    socket.on(EventTypes.NEW_USER, handleNewPeer);
 
     return () => {
       socket.off(EventTypes.leave);
@@ -96,15 +79,18 @@ export default function useWebRTC(
     async function setRemoteMedia({
       peerID,
       sessionDescription: remoteDescription,
-    }: {
-      peerID: string;
-      sessionDescription: RTCSessionDescription;
-    }) {
-      await peerConnections.current[peerID]?.setRemoteDescription(
-        new RTCSessionDescription(remoteDescription)
-      );
+    }: RelaySdpRequest) {
+      console.log(peerConnections.current[peerID]);
+      if (!peerConnections.current[peerID].remoteDescription) {
+        await peerConnections.current[peerID]?.setRemoteDescription(
+          new RTCSessionDescription(remoteDescription)
+        );
+      }
+
+      console.log("Remote description", remoteDescription, peerConnections.current[peerID]);
 
       if (remoteDescription.type === "offer") {
+        console.log('offer');
         const answer = await peerConnections.current[peerID].createAnswer();
 
         await peerConnections.current[peerID].setLocalDescription(answer);
@@ -128,6 +114,7 @@ export default function useWebRTC(
       EventTypes.ICE_CANDIDATE,
       (props: { peerID: string; iceCandidate: RTCIceCandidate }) => {
         const { peerID, iceCandidate } = props;
+        console.log("New ice Candidate", peerConnections.current[peerID]);
         peerConnections.current[peerID]?.addIceCandidate(
           new RTCIceCandidate(iceCandidate)
         );
@@ -194,11 +181,12 @@ export default function useWebRTC(
       const localVideoElement = peerMediaElements.current[
         LOCAL_VIDEO
       ] as HTMLVideoElement;
-
+      console.log(localVideoElement);
       if (localVideoElement) {
         localVideoElement.volume = 0;
         localVideoElement.srcObject = localMediaStream.current;
       }
+      console.log(localMediaStream.current, socket.id);
     }
 
     const stopTransmission = () => {
@@ -206,21 +194,22 @@ export default function useWebRTC(
         localMediaStream.current.getTracks().forEach((track) => track.stop());
       }
       socket.emit(EventTypes.STOP_TRANSMISSION);
-    }
+    };
 
     if (isCapturing) {
       startCapture()
         .then(() => socket.emit(EventTypes.START_TRANSMISSION))
         .catch((e) => console.error("Error getting userMedia:", e));
     } else {
-      console.log('hdfi?')
       stopTransmission();
     }
   }, [isCapturing]);
 
   const provideMediaRef = useCallback(
     (id: string, node: HTMLVideoElement | null) => {
-      peerMediaElements.current[id] = node;
+      const newId = id === socket.id ? LOCAL_VIDEO : id;
+      peerMediaElements.current[newId] = node;
+      console.log(peerMediaElements.current, newId, socket.id);
     },
     []
   );

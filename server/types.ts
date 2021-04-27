@@ -1,13 +1,11 @@
 export enum EventTypes {
   join = "join",
-  conn = "connection",
   message = "message",
   leave = "leave", // REMOVE_PEER
 
+  NEW_USER = 'new_user', 
   START_TRANSMISSION = 'start-transmission',
   STOP_TRANSMISSION = 'start-transmission',
-  ADD_PEER = 'add-peer',
-  REMOVE_PEER = 'remove-peer',
   RELAY_SDP = 'relay-sdp',
   RELAY_ICE = 'relay-ice',
   ICE_CANDIDATE = 'ice-candidate',
@@ -37,6 +35,8 @@ export interface StateInterface {
   [x: string]: ChatRoomInterface;
 }
 
+export type NewUserEventRequest = UsersClientInterface
+
 export interface JoinRoomEventRequest {
   roomId: string;
   username: string;
@@ -55,12 +55,12 @@ export type MessageEventRequest = Pick<
   roomId: string;
 };
 
-export type MessageEventResponse = MessageInterface[];
+export type MessageEventResponse = MessageInterface;
 
-export type DisconnectResponse = string[];
+export type DisconnectResponse = UsersClientInterface[];
 
 export interface RelaySdpRequest {
-  peerId: string,
+  peerID: string,
   sessionDescription: RTCSessionDescription 
 }
 

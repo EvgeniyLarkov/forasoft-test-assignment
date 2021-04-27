@@ -5,6 +5,7 @@ import Chat from "../Chat";
 import Media from "../Media";
 import styles from "./styles.css";
 import useSockets from "./useSockets";
+import socket from '../../socket';
 
 const WelcomeContainer = ({
     setName,
@@ -54,9 +55,10 @@ const App: React.FC = () => {
     const [messages, setMessages] = useState<MessageInterface[]>([]);
     const [isCapturing, setCapturing] = useState(false);
 
-    const [sendMessage, joinRoom, socket] = useSockets(setUsers, setMessages, setRoomId);
-    const [provideMediaRef] = useWebRTC(socket.id, socket, isCapturing);
+    const [sendMessage, joinRoom] = useSockets(setUsers, setMessages, setRoomId);
+    const [provideMediaRef] = useWebRTC(socket, isCapturing);
 
+    
     useEffect(() => {
         const path = window.location.pathname.slice(1);
         if (path.length > 0) {

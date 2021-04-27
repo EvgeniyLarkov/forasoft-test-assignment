@@ -1,5 +1,5 @@
-import { useEffect, useMemo } from "react";
-import { io } from "socket.io-client";
+import { useEffect } from "react";
+import socket from "../../socket";
 import {
   EventTypes,
   JoinRoomEventRequest,
@@ -7,17 +7,16 @@ import {
   MessageEventRequest,
   MessageEventResponse,
   MessageInterface,
+  NewUserEventRequest,
   UsersClientInterface,
 } from "../../../server/types";
 
 
 const useSockets = (
-  setUsers: (x: UsersClientInterface[]) => void,
-  setMessages: (x: MessageInterface[]) => void,
+  setUsers: React.Dispatch<React.SetStateAction<UsersClientInterface[]>>,
+  setMessages: React.Dispatch<React.SetStateAction<MessageInterface[]>>,
   setRoomId: (x: string) => void
 ) => {
-  const socket = useMemo(() => io("http://localhost:8040/"), []);
-
   useEffect(() => {
     socket.on("connection", () => {
     });
@@ -26,15 +25,20 @@ const useSockets = (
       setUsers(payload.users);
       setRoomId(payload.roomId);
       setMessages(payload.messages);
-      console.log()
+      console.log('Join_USEr');
+    });
+
+    socket.on(EventTypes.NEW_USER, (payload: NewUserEventRequest) => {
+      setUsers(prev => [...prev, payload]);
     });
 
     socket.on(EventTypes.message, (payload: MessageEventResponse) => {
-      setMessages(payload);
+      setMessages(prev => [...prev, payload]);
     });
 
     socket.on(EventTypes.leave, (payload: UsersClientInterface[]) => {
       setUsers(payload);
+      console.log('User_leave');
     });
   }, []);
 
@@ -57,7 +61,7 @@ const useSockets = (
     socket.emit(EventTypes.join, request);
   };
 
-  return [sendMessage, joinRoom, socket] as const;
+  return [sendMessage, joinRoom] as const;
 };
 
 export default useSockets;

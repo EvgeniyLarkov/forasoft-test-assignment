@@ -2,15 +2,7 @@ import React from 'react';
 import { UsersClientInterface } from '../../../server/types';
 import style from './styles.css';
 
-interface UserCardProps {
-    name: string,
-    active?: boolean,
-}
-
 // const CardColors = ['slateblue', 'royalblue', 'crimson', 'palegreen', 'purple', 'indianred'];
-
-const UserCard: React.FC<UserCardProps> = (props: UserCardProps) =>
-    <div className={style.card}><span>{props.name}</span></div>
 
 interface MediaProps {
     users: UsersClientInterface[],
@@ -25,18 +17,15 @@ const Media: React.FC<MediaProps> = ({
     const handleButtonClick = (ev: React.MouseEvent<HTMLElement>) => {
         handleVideoStart(!isCapturing);
     }
-
+    console.log(users);
     return (<>
         <div className={style.root}>
-            {users.map(user => <>
-                <UserCard name={user.username} key={user.id} />
+            {users.map(user => <div className={style.card} key={user.id}>
                 <video
-                    ref={instance => {provideRef(user.id, instance)}}
-                    key={`${user.id}_v`}
-                    width={'200px'}
-                    height={'200px'}
+                    ref={instance => provideRef(user.id, instance)}
                 />
-            </>)
+                <span>{user.username}</span>
+            </div>)
             }
         </div>
         <div className={style.control}>
